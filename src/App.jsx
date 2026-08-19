@@ -114,6 +114,17 @@ export default function App() {
         <button className="ghost" onClick={() => fileRef.current && fileRef.current.click()}>
           <FolderOpen size={18} /> <span className="file-name">{fileName || 'Abrir archivo .dxf'}</span>
         </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept=""
+          style={{ display: 'none' }}
+          onChange={(e) => {
+            const f = e.target.files && e.target.files[0];
+            if (f) handleFile(f);
+            e.target.value = '';
+          }}
+        />
         {doc && <span className="badge unit-badge">Unidad: {UNIT_NAMES[doc.units] || 'sin unidad'}</span>}
       </header>
 

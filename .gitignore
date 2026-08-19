@@ -6,3 +6,4 @@ dev.log
 .vscode
 .idea
 test/out*.txt
+.vercel
