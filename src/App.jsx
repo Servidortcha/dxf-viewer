@@ -2,7 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import Viewer from './components/Viewer';
 import Toolbar from './components/Toolbar';
 import { parseDxfText } from './lib/dxf';
-import { computeMeasurement, formatValue, formatAngle } from './lib/measure';
+import { computeMeasurement, formatValue, formatAngle, findCircle } from './lib/measure';
 import { FolderOpen, Triangle } from 'lucide-react';
 
 const UNIT_NAMES = {
@@ -13,6 +13,8 @@ const UNIT_NAMES = {
 const TYPE_NAMES = {
   distance: 'Distancia',
   length: 'Longitud',
+  radius: 'Radio',
+  diameter: 'Diámetro',
   area: 'Área',
   angle: 'Ángulo'
 };
@@ -50,6 +52,22 @@ export default function App() {
 
   const handleTap = useCallback((pt) => {
     if (tool === 'pan' || !doc) return;
+    if (tool === 'radius' || tool === 'diameter') {
+      const scale = viewerRef.current ? viewerRef.current.getScale() : 1;
+      const c = findCircle(pt, doc.primitives, 16 / (scale || 1));
+      if (c) {
+        const ang = Math.atan2(pt.y - c.cy, pt.x - c.cx);
+        const edge = { x: c.cx + c.r * Math.cos(ang), y: c.cy + c.r * Math.sin(ang) };
+        const m = computeMeasurement(tool, [{ ...c }]);
+        m.circle = { cx: c.cx, cy: c.cy, r: c.r };
+        m.points = [edge];
+        m.label = (tool === 'radius' ? 'R = ' : '\u00D8 = ') + formatValue(m.value, doc.units);
+        setMeasurements((ms) => [...ms, m]);
+        setPending([]);
+      }
+      setHoverPt(null);
+      return;
+    }
     const next = [...pendingRef.current, pt];
     if (tool === 'distance' && next.length >= 2) {
       const m = computeMeasurement('distance', next);

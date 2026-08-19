@@ -1,9 +1,11 @@
-import { ZoomIn, ZoomOut, Maximize2, Ruler, Route, Shapes, Triangle, Move } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Ruler, Route, Shapes, Triangle, Move, Circle, CircleDot } from 'lucide-react';
 
 const TOOLS = [
   { id: 'pan', label: 'Navegar', icon: Move },
   { id: 'distance', label: 'Distancia', icon: Ruler },
   { id: 'length', label: 'Longitud', icon: Route },
+  { id: 'radius', label: 'Radio', icon: Circle },
+  { id: 'diameter', label: 'Diámetro', icon: CircleDot },
   { id: 'area', label: 'Área', icon: Shapes },
   { id: 'angle', label: 'Ángulo', icon: Triangle }
 ];

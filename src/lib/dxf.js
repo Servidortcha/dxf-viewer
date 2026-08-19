@@ -149,6 +149,10 @@ function expandEntities(entities, blocks, transform, out, depth) {
         const c = e.center || {};
         const r = e.radius || 0;
         if (!r) break;
+        const center = tr(transform, c.x, c.y);
+        const scale = (Math.abs(transform.sx) + Math.abs(transform.sy)) / 2;
+        const rc = r * scale;
+        out.push({ kind: 'circle', cx: center.x, cy: center.y, r: rc, arc: false });
         const pts = [];
         const steps = 72;
         for (let i = 0; i < steps; i++) {
@@ -163,6 +167,10 @@ function expandEntities(entities, blocks, transform, out, depth) {
         const c = e.center || {};
         const r = e.radius || 0;
         if (!r) break;
+        const center = tr(transform, c.x, c.y);
+        const scale = (Math.abs(transform.sx) + Math.abs(transform.sy)) / 2;
+        const rc = r * scale;
+        out.push({ kind: 'circle', cx: center.x, cy: center.y, r: rc, arc: true });
         const start = e.startAngle || 0;
         const end = e.endAngle != null ? e.endAngle : 0;
         let sweep = end - start;
@@ -318,6 +326,12 @@ export function computeBounds(primitives) {
       if (p.y < minY) minY = p.y;
       if (p.x > maxX) maxX = p.x;
       if (p.y > maxY) maxY = p.y;
+      any = true;
+    } else if (p.kind === 'circle') {
+      if (p.cx - p.r < minX) minX = p.cx - p.r;
+      if (p.cy - p.r < minY) minY = p.cy - p.r;
+      if (p.cx + p.r > maxX) maxX = p.cx + p.r;
+      if (p.cy + p.r > maxY) maxY = p.cy + p.r;
       any = true;
     }
   }

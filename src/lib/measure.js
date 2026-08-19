@@ -4,6 +4,8 @@ export const TOOLS = {
   pan: { id: 'pan', label: 'Navegar', icon: 'move' },
   distance: { id: 'distance', label: 'Distancia', icon: 'ruler' },
   length: { id: 'length', label: 'Longitud', icon: 'polyline' },
+  radius: { id: 'radius', label: 'Radio', icon: 'radius' },
+  diameter: { id: 'diameter', label: 'Diámetro', icon: 'diameter' },
   area: { id: 'area', label: 'Área', icon: 'shapes' },
   angle: { id: 'angle', label: 'Ángulo', icon: 'angle' }
 };
@@ -30,7 +32,26 @@ export function computeMeasurement(type, points) {
     const ang = angleBetween(a, b, c);
     return { type, points, value: ang };
   }
+  if (type === 'radius' || type === 'diameter') {
+    if (!points.length) return null;
+    const p = points[0];
+    return { type, points: [p], value: type === 'radius' ? p.r : p.r * 2 };
+  }
   return null;
+}
+
+export function findCircle(world, primitives, tolWorld) {
+  let best = null;
+  let bestD = tolWorld;
+  for (const ent of primitives) {
+    if (ent.kind !== 'circle') continue;
+    const d = Math.abs(Math.hypot(world.x - ent.cx, world.y - ent.cy) - ent.r);
+    if (d < bestD) {
+      bestD = d;
+      best = ent;
+    }
+  }
+  return best;
 }
 
 function dist(a, b) {

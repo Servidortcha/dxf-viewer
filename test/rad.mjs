@@ -1,0 +1,13 @@
+﻿import fs from "node:fs";
+import { parseDxfText } from "../src/lib/dxf.js";
+import { computeMeasurement, findCircle, formatValue } from "../src/lib/measure.js";
+const text = fs.readFileSync("./test/sample.dxf", "latin1");
+const doc = parseDxfText(text);
+const circles = doc.primitives.filter(p => p.kind === "circle");
+console.log("circles:", JSON.stringify(circles));
+const c = findCircle({ x: 50, y: 25 }, doc.primitives, 100);
+console.log("found circle:", c && JSON.stringify(c));
+const m = computeMeasurement("radius", [{ ...c }]);
+console.log("R:", formatValue(m.value, doc.units));
+const m2 = computeMeasurement("diameter", [{ ...c }]);
+console.log("DIA:", formatValue(m2.value, doc.units));

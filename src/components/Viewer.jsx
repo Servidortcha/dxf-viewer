@@ -50,6 +50,13 @@ const Viewer = forwardRef(function Viewer(props, ref) {
     return { x: cam0.cx + (sx - w / 2) / cam0.scale, y: cam0.cy - (sy - h / 2) / cam0.scale };
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    fit: fitView,
+    getScale: () => cam.current.scale,
+    zoomIn: () => zoomAt(canvasRef.current.clientWidth / 2, canvasRef.current.clientHeight / 2, 1.35),
+    zoomOut: () => zoomAt(canvasRef.current.clientWidth / 2, canvasRef.current.clientHeight / 2, 1 / 1.35)
+  }), [fitView, zoomAt]);
+
   const requestDraw = useCallback(() => {
     if (drawRequest.current) return;
     drawRequest.current = requestAnimationFrame(() => {
@@ -395,6 +402,35 @@ function drawMeasurement(ctx, m, cam0) {
     const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
     const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
     drawLabel(ctx, m.label, cx, cy);
+  } else if (m.type === 'radius' || m.type === 'diameter') {
+    const cntr = w2s({ x: m.circle.cx, y: m.circle.cy }, cam0, c);
+    const r = m.circle.r * cam0.scale;
+    ctx.beginPath();
+    ctx.setLineDash([5, 4]);
+    ctx.arc(cntr.x, cntr.y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    if (m.type === 'radius') {
+      const end = w2s({ x: m.circle.cx + m.circle.r, y: m.circle.cy }, cam0, c);
+      ctx.beginPath();
+      ctx.moveTo(cntr.x, cntr.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      drawArrow(ctx, cntr, end);
+      drawMarker(ctx, end, 4);
+      drawLabel(ctx, m.label, (cntr.x + end.x) / 2, (cntr.y + end.y) / 2 - 16);
+    } else {
+      const e1 = w2s({ x: m.circle.cx - m.circle.r, y: m.circle.cy }, cam0, c);
+      const e2 = w2s({ x: m.circle.cx + m.circle.r, y: m.circle.cy }, cam0, c);
+      ctx.beginPath();
+      ctx.moveTo(e1.x, e1.y);
+      ctx.lineTo(e2.x, e2.y);
+      ctx.stroke();
+      drawArrow(ctx, e1, e2);
+      drawMarker(ctx, e1, 4);
+      drawMarker(ctx, e2, 4);
+      drawLabel(ctx, m.label, (e1.x + e2.x) / 2, (e1.y + e2.y) / 2 - 16);
+    }
   } else if (m.type === 'angle') {
     const [va, a, b] = m.points.map((p) => w2s(p, cam0, c));
     ctx.beginPath();
@@ -426,6 +462,18 @@ function drawMarker(ctx, s, r = 5) {
   ctx.strokeStyle = '#fff';
   ctx.lineWidth = 1.5;
   ctx.stroke();
+}
+
+function drawArrow(ctx, from, to) {
+  const ang = Math.atan2(to.y - from.y, to.x - from.x);
+  const len = 9;
+  ctx.fillStyle = COLORS.accent;
+  ctx.beginPath();
+  ctx.moveTo(to.x, to.y);
+  ctx.lineTo(to.x - len * Math.cos(ang - 0.4), to.y - len * Math.sin(ang - 0.4));
+  ctx.lineTo(to.x - len * Math.cos(ang + 0.4), to.y - len * Math.sin(ang + 0.4));
+  ctx.closePath();
+  ctx.fill();
 }
 
 function drawLabel(ctx, text, x, y) {
