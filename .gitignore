@@ -1,0 +1,8 @@
+node_modules
+dist
+dev.log
+*.log
+.DS_Store
+.vscode
+.idea
+test/out*.txt
