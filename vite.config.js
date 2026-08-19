@@ -9,9 +9,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'DXF Medidor',
-        short_name: 'DXFMed',
-        description: 'Visualizador y medidor de archivos DXF para celular',
+        name: 'Aresa Visor DXF',
+        short_name: 'AresaDXF',
+        description: 'Visor y medidor de archivos DXF de Aresa',
         lang: 'es',
         theme_color: '#0f172a',
         background_color: '#0f172a',
@@ -23,7 +23,8 @@ export default defineConfig({
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+          { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon-512.png', sizes: 'any', type: 'image/png' }
         ],
         file_handlers: [
           {

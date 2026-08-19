@@ -140,9 +140,8 @@ export default function App() {
           <span className="brand-icon">
             <Triangle size={18} strokeWidth={2.2} />
           </span>
-          DXF Medidor
-        </div>
-        <button className="ghost" onClick={() => fileRef.current && fileRef.current.click()}>
+          Aresa Visor DXF
+        </div>        <button className="ghost" onClick={() => fileRef.current && fileRef.current.click()}>
           <FolderOpen size={18} /> <span className="file-name">{fileName || 'Abrir archivo .dxf'}</span>
         </button>
         <input
