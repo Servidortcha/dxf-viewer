@@ -3,7 +3,7 @@ import Viewer from './components/Viewer';
 import Toolbar from './components/Toolbar';
 import { parseDxfText } from './lib/dxf';
 import { computeMeasurement, formatValue, formatAngle, findCircle } from './lib/measure';
-import { FolderOpen, Triangle } from 'lucide-react';
+import { FolderOpen } from 'lucide-react';
 
 const UNIT_NAMES = {
   0: 'sin unidad', 1: 'pulgadas', 2: 'pies', 3: 'millas', 4: 'milímetros',
@@ -137,10 +137,8 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <div className="brand">
-          <span className="brand-icon">
-            <Triangle size={18} strokeWidth={2.2} />
-          </span>
-          Aresa Visor DXF
+          <img className="brand-logo" src="/aresa-logo.png" alt="Aresa" />
+          <span className="brand-title">Aresa Visor DXF</span>
         </div>        <button className="ghost" onClick={() => fileRef.current && fileRef.current.click()}>
           <FolderOpen size={18} /> <span className="file-name">{fileName || 'Abrir archivo .dxf'}</span>
         </button>

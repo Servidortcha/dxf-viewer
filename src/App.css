@@ -61,6 +61,17 @@ body {
   color: var(--accent);
 }
 
+.brand-logo {
+  height: 26px;
+  width: auto;
+  display: block;
+}
+
+.brand-title {
+  font-weight: 800;
+  font-size: 16px;
+}
+
 .file-name {
   max-width: 160px;
   overflow: hidden;
