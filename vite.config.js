@@ -18,10 +18,24 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'any',
         start_url: '/',
+        scope: '/',
+        id: '/',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        ],
+        file_handlers: [
+          {
+            action: '/',
+            name: 'Abrir archivo DXF',
+            accept: {
+              'application/dxf': ['.dxf'],
+              'image/vnd.dxf': ['.dxf'],
+              'application/octet-stream': ['.dxf']
+            },
+            launch_type: 'single-client'
+          }
         ]
       }
     })

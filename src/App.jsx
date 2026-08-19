@@ -50,6 +50,19 @@ export default function App() {
     }
   }, []);
 
+  useEffect(() => {
+    // Capturar archivos abiertos con "Abrir con" desde Android
+    const launcher = window.launchQueue;
+    if (launcher && launcher.setConsumer) {
+      launcher.setConsumer((launchParams) => {
+        const files = launchParams.files || [];
+        if (files.length > 0) {
+          handleFile(files[0]);
+        }
+      });
+    }
+  }, [handleFile]);
+
   const handleTap = useCallback((pt) => {
     if (tool === 'pan' || !doc) return;
     if (tool === 'radius' || tool === 'diameter') {
