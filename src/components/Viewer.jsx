@@ -50,13 +50,6 @@ const Viewer = forwardRef(function Viewer(props, ref) {
     return { x: cam0.cx + (sx - w / 2) / cam0.scale, y: cam0.cy - (sy - h / 2) / cam0.scale };
   }, []);
 
-  useImperativeHandle(ref, () => ({
-    fit: fitView,
-    getScale: () => cam.current.scale,
-    zoomIn: () => zoomAt(canvasRef.current.clientWidth / 2, canvasRef.current.clientHeight / 2, 1.35),
-    zoomOut: () => zoomAt(canvasRef.current.clientWidth / 2, canvasRef.current.clientHeight / 2, 1 / 1.35)
-  }), [fitView, zoomAt]);
-
   const requestDraw = useCallback(() => {
     if (drawRequest.current) return;
     drawRequest.current = requestAnimationFrame(() => {
@@ -127,6 +120,13 @@ const Viewer = forwardRef(function Viewer(props, ref) {
     };
     requestDraw();
   }, [requestDraw]);
+
+  useImperativeHandle(ref, () => ({
+    fit: fitView,
+    getScale: () => cam.current.scale,
+    zoomIn: () => zoomAt(canvasRef.current.clientWidth / 2, canvasRef.current.clientHeight / 2, 1.35),
+    zoomOut: () => zoomAt(canvasRef.current.clientWidth / 2, canvasRef.current.clientHeight / 2, 1 / 1.35)
+  }), [fitView, zoomAt]);
 
   const handlePointerDown = useCallback((e) => {
     e.preventDefault();
