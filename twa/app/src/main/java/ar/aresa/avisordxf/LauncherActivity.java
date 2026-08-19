@@ -15,18 +15,24 @@
  */
 package ar.aresa.avisordxf;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URLEncoder;
 
 
 
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
-    
 
-    
+    private static final String TAG = "AresaDXF";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +53,71 @@ public class LauncherActivity
         // Get the original launch Url.
         Uri uri = super.getLaunchingUrl();
 
-        
+        // If the app was launched to handle a .dxf file, read it and pass it as base64
+        Intent intent = getIntent();
+        if (intent != null && intent.getData() != null) {
+            String fileName = queryFileName(intent.getData());
+            if (fileName != null && fileName.toLowerCase().endsWith(".dxf")) {
+                try {
+                    byte[] bytes = readAllBytes(intent.getData());
+                    String base64 = Base64.encodeToString(bytes, Base64.NO_WRAP);
+                    String encodedName = URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+                    String encodedBase64 = URLEncoder.encode(base64, "UTF-8").replace("+", "%20");
+                    String extra = "?dxf=" + encodedBase64 + "&dxfName=" + encodedName;
+                    // Append to the launching URL (handling existing query/fragment)
+                    String url = uri.toString();
+                    if (url.contains("?")) {
+                        url = url + "&" + extra.substring(1);
+                    } else {
+                        url = url + extra;
+                    }
+                    Log.d(TAG, "Passing DXF to web " + url.length() + " chars");
+                    return Uri.parse(url);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to read DXF", e);
+                }
+            }
+        }
 
         return uri;
+    }
+
+    private String queryFileName(Uri fileUri) {
+        String name = null;
+        try {
+            String[] proj = {android.provider.OpenableColumns.DISPLAY_NAME};
+            android.database.Cursor cursor = getContentResolver().query(fileUri, proj, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int idx = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                        if (idx >= 0) name = cursor.getString(idx);
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        if (name == null) {
+            String last = fileUri.getLastPathSegment();
+            if (last != null) name = last.contains("/") ? last.substring(last.lastIndexOf('/') + 1) : last;
+        }
+        return name;
+    }
+
+    private byte[] readAllBytes(Uri fileUri) throws Exception {
+        InputStream is = getContentResolver().openInputStream(fileUri);
+        try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int n;
+            while ((n = is.read(buffer)) != -1) {
+                bos.write(buffer, 0, n);
+            }
+            return bos.toByteArray();
+        } finally {
+            if (is != null) is.close();
+        }
     }
 }

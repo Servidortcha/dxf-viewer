@@ -33,14 +33,11 @@ export default function App() {
   const pendingRef = useRef([]);
   useEffect(() => { pendingRef.current = pending; }, [pending]);
 
-  const handleFile = useCallback(async (file) => {
-    if (!file) return;
+  const loadDxfText = useCallback(async (text, name) => {
     try {
-      const buf = await file.arrayBuffer();
-      const text = new TextDecoder('windows-1252').decode(buf);
       const parsed = parseDxfText(text);
-      setDoc({ ...parsed, file });
-      setFileName(file.name);
+      setDoc({ ...parsed, file: null });
+      setFileName(name || 'dxf');
       setMeasurements([]);
       setPending([]);
       setError('');
@@ -49,6 +46,17 @@ export default function App() {
       setError('No se pudo leer el archivo: ' + err.message);
     }
   }, []);
+
+  const handleFile = useCallback(async (file) => {
+    if (!file) return;
+    try {
+      const buf = await file.arrayBuffer();
+      const text = new TextDecoder('windows-1252').decode(buf);
+      await loadDxfText(text, file.name);
+    } catch (err) {
+      setError('No se pudo leer el archivo: ' + err.message);
+    }
+  }, [loadDxfText]);
 
   useEffect(() => {
     // Capturar archivos abiertos con "Abrir con" desde Android
@@ -62,6 +70,23 @@ export default function App() {
       });
     }
   }, [handleFile]);
+
+  useEffect(() => {
+    // Cargar DXF recibido via query param (APK TWA: ?dxf=<base64>&dxfName=...)
+    const params = new URLSearchParams(window.location.search);
+    const b64 = params.get('dxf');
+    const name = params.get('dxfName') || 'archivo.dxf';
+    if (b64) {
+      try {
+        const decoded = decodeURIComponent(b64);
+        const text = atob(decoded);
+        loadDxfText(text, name);
+      } catch (err) {
+        setError('No se pudo decodificar el archivo: ' + err.message);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleTap = useCallback((pt) => {
     if (tool === 'pan' || !doc) return;
