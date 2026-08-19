@@ -7,3 +7,14 @@ dev.log
 .idea
 test/out*.txt
 .vercel
+
+# Android / TWA artifacts
+twa/android.keystore
+twa/.gradle
+twa/app/build
+twa/build
+twa/*.apk
+twa/*.idsig
+twa/gradle-build.log
+apk-dist
+bw-build.mjs
